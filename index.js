@@ -72,7 +72,8 @@ function getSidByTicket(req, res, config) {
     });
 }
 
-module.exports.pbupassport = function(config) {
+module.exports.pbupassport = pbupassport;
+function pbupassport(config) {
     return function(req, res, next) {
         if (req.method === 'GET' ) {
             if (!req.cookies.PBUSID) {
@@ -82,7 +83,7 @@ module.exports.pbupassport = function(config) {
                 }else {
                     const maxAge = config.maxAge;
                     //用ticket换sid
-                    getSidByTicket(req, res).then(function(ret) {
+                    getSidByTicket(req, res, config).then(function(ret) {
                         res.cookie(PBUSID, ret.sid, { maxAge: maxAge, httpOnly: true });
                         res.cookie(md5('userName'), base64Encode(ret.userName), { maxAge: maxAge });
                         res.cookie(md5('userId'), base64Encode(ret.userName), { maxAge: maxAge });
@@ -111,3 +112,10 @@ module.exports.pbupassport = function(config) {
         return next();
     };
 }
+
+// pbupassport({
+//     passportUrl: '',
+//     siteDomain: '',
+//     maxAge: '',
+//     ssoApiUrl: ''
+// })
