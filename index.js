@@ -53,14 +53,20 @@ function base64Encode(originalString) {
  * @return {Promise}     Promise
  */
 function getSidByTicket(req, res, config) {
+    console.log('getSidByTicket ');
     return new Promise(function(resolve, reject) {
+        console.log('config.siteDomain = ', config.siteDomain);
+        console.log('req.originalUrl = ', req.originalUrl);
+        console.log('url = ', urljoin(config.siteDomain, appendQuery(req.originalUrl, { ticket: null }, { removeNull: true })));
         request.post({
             url: urljoin(config.ssoApiUrl, 'sid.local.get'),
             form: {
                 ticket: req.query.ticket,
-                url: urljoin(config.siteDomain, req.originalUrl)
+                url: urljoin(config.siteDomain, appendQuery(req.originalUrl, { ticket: null }, { removeNull: true }))
             }
         }, function(err, response, body) {
+            console.log('body = ', body);
+            console.log('err = ', err);
 
             if (err) {
                 reject(err);
@@ -76,6 +82,8 @@ module.exports.pbupassport = pbupassport;
 function pbupassport(config) {
     return function(req, res, next) {
         if (req.method === 'GET' ) {
+            console.log('cookies = ', req.cookies);
+            console.log('query = ', req.query);
             if (!req.cookies.PBUSID) {
                 if (!req.query.ticket) {
                     res.redirect(appendQuery(config.passportUrl, { redirectUrl:  urljoin(config.siteDomain, req.originalUrl) }));
@@ -84,6 +92,8 @@ function pbupassport(config) {
                     const maxAge = config.maxAge;
                     //用ticket换sid
                     getSidByTicket(req, res, config).then(function(ret) {
+                        console.log('ret.sid = ', ret.sid);
+                        console.log('!!ret.sid = ', !!ret.sid);
                         res.cookie(PBUSID, ret.sid, { maxAge: maxAge, httpOnly: true });
                         res.cookie(md5('userName'), base64Encode(ret.userName), { maxAge: maxAge });
                         res.cookie(md5('userId'), base64Encode(ret.userName), { maxAge: maxAge });
