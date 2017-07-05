@@ -72,6 +72,35 @@ function getSidByTicket(req, res, config) {
     });
 }
 
+/**
+ * 校验sid
+ * @param  {object} req    请求体
+ * @param  {object} res    响应体
+ * @param  {object} config 配置文件
+ * @return {Promise}        Promise
+ */
+function checkSid(req, res, config) {
+    return new Promise(function(resolve, reject) {
+        request.post({
+            url: urljoin(config.passportUrl, 'sid.check'),
+            form: {
+                userToken: req.cookies[md5('userToken')],
+                userId: req.cookies[md5('userId')],
+                userName: req.cookies[md5('userName')],
+                userType: req.cookies[md5('userType')],
+                sid: req.cookies.PBUSID
+            }
+        }, function(err, response, body) {
+            if (err) {
+                reject(err);
+            }
+
+            const ret = JSON.parse(body);
+            resolve(ret);
+        })
+    });
+}
+
 module.exports.pbupassport = pbupassport;
 function pbupassport(config) {
     return function(req, res, next) {
@@ -102,6 +131,14 @@ function pbupassport(config) {
                     && req.cookies[md5('userName')]
                     && req.cookies[md5('userType')]) {
 
+                    checkSid(req, res, config).then(function(ret) {
+                        if (ret.same !== 'true') {
+                            res.redirect(appendQuery(urljoin(config.passportUrl, 'login'), { redirectUrl:  urljoin(config.siteDomain, req.originalUrl) }));
+                            return;
+                        }else {
+                            return next();
+                        }
+                    });
                 }else {
                     res.redirect(appendQuery(urljoin(config.passportUrl, 'login'), { redirectUrl:  urljoin(config.siteDomain, req.originalUrl) }));
                     return;
