@@ -76,7 +76,6 @@ module.exports.pbupassport = pbupassport;
 function pbupassport(config) {
     return function(req, res, next) {
         if (req.method === 'GET' ) {
-
             if (!req.query.ticket) {
                 if (!req.cookies.PBUSID) {
                     //没票且没sid，则重新登录
@@ -109,6 +108,15 @@ function pbupassport(config) {
                     return;
                 });
 
+                return;
+            }
+        }else if (req.method === 'POST') {
+            if (req.path === '/logout') {
+                //登出操作
+                ['userId', 'userName', 'userType', 'userToken', 'PBUSID'].forEach((item) => {
+                    res.clearCookie(item);
+                });
+                res.redirect(appendQuery(urljoin(config.passportUrl, 'login'), { redirectUrl: config.siteDomain }));
                 return;
             }
         }
