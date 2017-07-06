@@ -110,13 +110,22 @@ function pbupassport(config) {
 
                 return;
             }
+
+            if (req.path === '/logout') {
+                //清cookie
+                ['userId', 'userName', 'userType', 'userToken', 'PBUSID'].forEach((item) => {
+                    res.clearCookie(item);
+                });
+
+                return;
+            }
         }else if (req.method === 'POST') {
             if (req.path === '/logout') {
                 //登出操作
                 ['userId', 'userName', 'userType', 'userToken', 'PBUSID'].forEach((item) => {
                     res.clearCookie(item);
                 });
-                res.redirect(appendQuery(urljoin(config.passportUrl, 'login'), { redirectUrl: config.siteDomain }));
+                res.redirect(appendQuery(urljoin(config.passportUrl, 'logout'), { redirectUrl: config.siteDomain }));
                 return;
             }
         }
