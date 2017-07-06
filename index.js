@@ -113,7 +113,7 @@ function pbupassport(config) {
 
             if (req.path === '/logout') {
                 //清cookie
-                ['userId', 'userName', 'userType', 'userToken', 'PBUSID'].forEach((item) => {
+                [md5('userId'), md5('userName'), md5('userType'), md5('userToken'), 'PBUSID'].forEach((item) => {
                     res.clearCookie(item);
                 });
 
@@ -122,7 +122,7 @@ function pbupassport(config) {
         }else if (req.method === 'POST') {
             if (req.path === '/logout') {
                 //登出操作
-                ['userId', 'userName', 'userType', 'userToken', 'PBUSID'].forEach((item) => {
+                [md5('userId'), md5('userName'), md5('userType'), md5('userToken'), 'PBUSID'].forEach((item) => {
                     res.clearCookie(item);
                 });
                 res.redirect(appendQuery(urljoin(config.passportUrl, 'logout'), { redirectUrl: config.siteDomain }));
