@@ -46,6 +46,20 @@ function base64Encode(originalString) {
     return new Buffer(originalString + '').toString('base64');
 }
 
+//退出时需要清掉的cookies
+const cookiesToClear = [
+    md5('userId'),
+    md5('userName'),
+    md5('userType'),
+    md5('userToken'),
+    'PBUSID',
+    md5('memberType'),
+    md5('schoolName'),
+    md5('schoolId'),
+    md5('schoolUrl'),
+    'PBU_AUTHR_SIG'
+]
+
 /**
  * 根据ticket换取local sid
  * @param  {object} req request
@@ -113,7 +127,7 @@ function pbupassport(config) {
 
             if (req.path === '/logout') {
                 //清cookie
-                [md5('userId'), md5('userName'), md5('userType'), md5('userToken'), 'PBUSID'].forEach((item) => {
+                cookiesToClear.forEach((item) => {
                     res.clearCookie(item);
                 });
 
@@ -122,7 +136,7 @@ function pbupassport(config) {
         }else if (req.method === 'POST') {
             if (req.path === '/logout') {
                 //登出操作
-                [md5('userId'), md5('userName'), md5('userType'), md5('userToken'), 'PBUSID'].forEach((item) => {
+                cookiesToClear.forEach((item) => {
                     res.clearCookie(item);
                 });
                 res.redirect(appendQuery(urljoin(config.passportUrl, 'logout'), { redirectUrl: config.siteDomain }));
