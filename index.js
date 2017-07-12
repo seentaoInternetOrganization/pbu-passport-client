@@ -131,6 +131,9 @@ function pbupassport(config) {
                     res.clearCookie(item);
                 });
 
+                res.json({
+                    code: 200
+                });
                 return;
             }
         }else if (req.method === 'POST') {
