@@ -113,27 +113,13 @@ function pbupassport(config) {
                 const maxAge = config.maxAge;
                 //用ticket换sid
                 getSidByTicket(req, res, config).then(function(ret) {
-                    if (!ret.userId) {
-                        res.redirect(appendQuery(urljoin(config.passportUrl, 'login'), {
-                            redirectUrl:  urljoin(config.siteDomain, req.originalUrl),
-                            ret: base64Encode(JSON.stringify(ret))
-                        }));
-                        return;
-                    }
-
                     res.cookie(PBUSID, ret.sid, { maxAge: maxAge, httpOnly: true });
                     res.cookie(md5('userName'), base64Encode(ret.userName + ''), { maxAge: maxAge });
                     res.cookie(md5('userId'), base64Encode(ret.userId + ''), { maxAge: maxAge });
                     res.cookie(md5('userToken'), base64Encode(ret.userToken + ''), { maxAge: maxAge });
                     res.cookie(md5('userType'), base64Encode(ret.userType + ''), { maxAge: maxAge });
-
-                    res.redirect(appendQuery(req.originalUrl, {
-                        ticket: null,
-                        ret: base64Encode(JSON.stringify(ret))
-                    }, {
-                        removeNull: true
-                    }));
-                    return;
+                    // res.redirect(req.originalUrl);
+                    return next();
                 });
 
                 return;
