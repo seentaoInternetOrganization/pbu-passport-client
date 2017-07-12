@@ -1,6 +1,6 @@
 {
   "name": "pbu-passport-client",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "sso client for express",
   "main": "index.js",
   "scripts": {
