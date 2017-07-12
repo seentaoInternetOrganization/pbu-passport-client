@@ -120,8 +120,7 @@ function pbupassport(config) {
                     res.cookie(md5('userToken'), base64Encode(ret.userToken + ''), { maxAge: maxAge });
                     res.cookie(md5('userType'), base64Encode(ret.userType + ''), { maxAge: maxAge });
                     res.redirect(appendQuery(req.originalUrl, {
-                        ticket: null,
-                        ret: base64Encode(JSON.stringify(ret))
+                        ticket: null
                     }, {
                         removeNull: true
                     }));
