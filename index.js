@@ -91,14 +91,15 @@ function pbupassport(config) {
     return function(req, res, next) {
         if (req.method === 'GET' ) {
             if (!req.query.ticket) {
-                if (!req.cookies.PBUSID) {
+                if (!req.cookies.PBUSID
+                    || req.cookies.PBUSID === 'undefined') {
                     //没票且没sid，则重新登录
                     res.redirect(appendQuery(config.passportUrl, { redirectUrl:  urljoin(config.siteDomain, req.originalUrl) }));
                     return;
                 }else {
 
-                    if (req.cookies[md5('userToken')]
-                        && req.cookies[md5('userId')]
+                    if (req.cookies[md5('userToken')] && req.cookies[md5('userToken')] !== 'undefined'
+                        && req.cookies[md5('userId')] && req.cookies[md5('userId')] !== 'undefined'
                         && req.cookies[md5('userName')]
                         && req.cookies[md5('userType')]) {
                         //如果有sid且有userInfo等信息，则继续
