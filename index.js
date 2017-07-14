@@ -90,6 +90,19 @@ module.exports.pbupassport = pbupassport;
 function pbupassport(config) {
     return function(req, res, next) {
         if (req.method === 'GET' ) {
+            //先相应退出
+            if (req.path === '/logout') {
+                //清cookie
+                cookiesToClear.forEach((item) => {
+                    res.clearCookie(item);
+                });
+
+                res.json({
+                    code: 200
+                });
+                return;
+            }
+
             if (!req.query.ticket) {
                 if (!req.cookies.PBUSID
                     || req.cookies.PBUSID === 'undefined') {
@@ -127,18 +140,6 @@ function pbupassport(config) {
                     return;
                 });
 
-                return;
-            }
-
-            if (req.path === '/logout') {
-                //清cookie
-                cookiesToClear.forEach((item) => {
-                    res.clearCookie(item);
-                });
-
-                res.json({
-                    code: 200
-                });
                 return;
             }
         }else if (req.method === 'POST') {
