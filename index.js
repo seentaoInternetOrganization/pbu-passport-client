@@ -53,10 +53,10 @@ const cookiesToClear = [
     md5('userType'),
     md5('userToken'),
     'PBUSID',
-    md5('memberType'),
-    md5('schoolName'),
-    md5('schoolId'),
-    md5('schoolUrl'),
+    'memberType',
+    'schoolName',
+    'schoolId',
+    'schoolUrl',
     'PBU_AUTHR_SIG'
 ]
 
@@ -75,6 +75,14 @@ function getSidByTicket(req, res, config) {
                 url: urljoin(config.siteDomain, appendQuery(req.originalUrl, { ticket: null }, { removeNull: true }))
             }
         }, function(err, response, body) {
+            // console.log('post form ', JSON.stringify({
+            //     form: {
+            //         ticket: req.query.ticket,
+            //         url: urljoin(config.siteDomain, appendQuery(req.originalUrl, { ticket: null }, { removeNull: true }))
+            //     }
+            // }));
+            // console.log('err = ', err);
+            // console.log('body = ', body);
 
             if (err) {
                 reject(err);
@@ -94,15 +102,19 @@ function pbupassport(config) {
             if (req.path === '/logout') {
                 //清cookie
                 cookiesToClear.forEach((item) => {
+                    // console.log('clear ', item);
                     res.clearCookie(item);
                 });
+
+                // console.log('/logout complete');
 
                 res.json({
                     code: 200
                 });
                 return;
             }
-
+            // console.log('req.cookies = ', req.cookies);
+            // console.log('req.query.ticket = ', req.query);
             if (!req.query.ticket) {
                 if (!req.cookies.PBUSID
                     || req.cookies.PBUSID === 'undefined') {
@@ -111,8 +123,8 @@ function pbupassport(config) {
                     return;
                 }else {
 
-                    if (req.cookies[md5('userToken')] && req.cookies[md5('userToken')] !== 'undefined'
-                        && req.cookies[md5('userId')] && req.cookies[md5('userId')] !== 'undefined'
+                    if (req.cookies[md5('userToken')] && base64Decode(req.cookies[md5('userToken')]) !== 'undefined'
+                        && req.cookies[md5('userId')] && base64Decode(req.cookies[md5('userId')]) !== 'undefined'
                         && req.cookies[md5('userName')]
                         && req.cookies[md5('userType')]) {
                         //如果有sid且有userInfo等信息，则继续
@@ -127,6 +139,15 @@ function pbupassport(config) {
                 const maxAge = config.maxAge;
                 //用ticket换sid
                 getSidByTicket(req, res, config).then(function(ret) {
+                    // console.log('ret = ', ret);
+                    if (ret.code != 200) {
+                        res.redirect(appendQuery(urljoin(config.passportUrl, 'login'), {
+                            redirectUrl:  urljoin(config.siteDomain, req.originalUrl),
+                            errMsg: JSON.stringify(ret)
+                        }));
+                        return;
+                    }
+
                     res.cookie(PBUSID, ret.sid, { maxAge: maxAge, httpOnly: true });
                     res.cookie(md5('userName'), base64Encode(ret.userName + ''), { maxAge: maxAge });
                     res.cookie(md5('userId'), base64Encode(ret.userId + ''), { maxAge: maxAge });
