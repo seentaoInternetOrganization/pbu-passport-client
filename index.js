@@ -57,7 +57,10 @@ const cookiesToClear = [
     'schoolName',
     'schoolId',
     'schoolUrl',
-    'PBU_AUTHR_SIG'
+    'PBU_AUTHR_SIG',
+    'orgId',
+    'orgType',
+    'memberId'
 ]
 
 /**
