@@ -172,7 +172,10 @@ function pbupassport(config) {
                 cookiesToClear.forEach((item) => {
                     res.clearCookie(item);
                 });
-                res.redirect(appendQuery(urljoin(config.passportUrl, 'logout'), { redirectUrl: config.siteDomain }));
+                res.redirect(appendQuery(urljoin(config.passportUrl, 'logout'), {
+                    errMsg: req.query.errMsg ? req.query.errMsg : '',
+                    redirectUrl: config.siteDomain,
+                }));
                 return;
             }
         }
