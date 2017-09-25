@@ -167,12 +167,13 @@ function pbupassport(config) {
                 return;
             }
         }else if (req.method === 'POST') {
-            if (req.path === '/logout') {
+            if (req.path === '/logout'
+                || req.path === '/login') {
                 //登出操作
                 cookiesToClear.forEach((item) => {
                     res.clearCookie(item);
                 });
-                res.redirect(appendQuery(urljoin(config.passportUrl, 'logout'), {
+                res.redirect(appendQuery(urljoin(config.passportUrl, req.path), {
                     errMsg: req.query.errMsg ? req.query.errMsg : '',
                     redirectUrl: config.siteDomain,
                 }));
