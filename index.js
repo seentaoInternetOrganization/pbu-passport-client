@@ -160,18 +160,10 @@ function pbupassport(config) {
             cookiesToClear.forEach((item) => {
                 res.clearCookie(item);
             });
-
-            if (req.query
-                && req.query.errMsg) {
-                res.redirect(appendQuery(urljoin(config.passportUrl, 'login'), {
-                    errMsg: req.query.errMsg ? req.query.errMsg : '',
-                    redirectUrl: config.siteDomain,
-                }));
-            }else {
-                res.redirect(appendQuery(urljoin(config.passportUrl, 'logout'), {
-                    redirectUrl: config.siteDomain,
-                }));
-            }
+            res.redirect(appendQuery(urljoin(config.passportUrl, req.path), {
+                errMsg: req.query.errMsg ? req.query.errMsg : '',
+                redirectUrl: config.siteDomain,
+            }));
             return;
         }
 
@@ -190,98 +182,3 @@ function pbupassport(config) {
         }
     }
 }
-
-
-// function pbupassport(config) {
-//     return function(req, res, next) {
-//         if (req.method === 'GET' ) {
-//             //先相应退出
-//             if (req.path === '/logout') {
-//                 //清cookie
-//                 cookiesToClear.forEach((item) => {
-//                     // console.log('clear ', item);
-//                     res.clearCookie(item);
-//                 });
-//
-//                 // console.log('/logout complete');
-//
-//                 res.json({
-//                     code: 200
-//                 });
-//                 return;
-//             }
-//             // console.log('req.cookies = ', req.cookies);
-//             // console.log('req.query.ticket = ', req.query);
-//             if (!req.query.ticket) {
-//                 if (!req.cookies.PBUSID
-//                     || req.cookies.PBUSID === 'undefined') {
-//                     //没票且没sid，则重新登录
-//                     res.redirect(appendQuery(config.passportUrl, { redirectUrl:  urljoin(config.siteDomain, req.originalUrl) }));
-//                     return;
-//                 }else {
-//
-//                     if (req.cookies[md5('userToken')] && base64Decode(req.cookies[md5('userToken')]) !== 'undefined'
-//                         && req.cookies[md5('userId')] && base64Decode(req.cookies[md5('userId')]) !== 'undefined'
-//                         && req.cookies[md5('userName')]
-//                         && req.cookies[md5('userType')]) {
-//                         //如果有sid且有userInfo等信息，则继续
-//                     }else {
-//                         //userInfo信息不全，需重新登录
-//                         res.redirect(appendQuery(urljoin(config.passportUrl, 'login'), { redirectUrl:  urljoin(config.siteDomain, req.originalUrl) }));
-//                         return;
-//                     }
-//                 }
-//             }else {
-//                 //只要有新票，就重新创建sid等信息
-//                 const maxAge = config.maxAge;
-//                 //用ticket换sid
-//                 getSidByTicket(req, res, config).then(function(ret) {
-//                     // console.log('ret = ', ret);
-//                     if (ret.code != 200) {
-//                         res.redirect(appendQuery(urljoin(config.passportUrl, 'login'), {
-//                             redirectUrl:  urljoin(config.siteDomain, req.originalUrl),
-//                             errMsg: JSON.stringify(ret)
-//                         }));
-//                         return;
-//                     }
-//
-//                     res.cookie(PBUSID, ret.sid, { maxAge: maxAge, httpOnly: true });
-//                     res.cookie(md5('userName'), base64Encode(ret.userName + ''), { maxAge: maxAge });
-//                     res.cookie(md5('userId'), base64Encode(ret.userId + ''), { maxAge: maxAge });
-//                     res.cookie(md5('userToken'), base64Encode(ret.userToken + ''), { maxAge: maxAge });
-//                     res.cookie(md5('userType'), base64Encode(ret.userType + ''), { maxAge: maxAge });
-//                     res.redirect(appendQuery(req.originalUrl, {
-//                         ticket: null
-//                     }, {
-//                         removeNull: true
-//                     }));
-//                     return;
-//                 });
-//
-//                 return;
-//             }
-//         }else if (req.method === 'POST') {
-//             if (req.path === '/logout'
-//                 || req.path === '/login') {
-//                 //登出操作
-//                 cookiesToClear.forEach((item) => {
-//                     res.clearCookie(item);
-//                 });
-//                 res.redirect(appendQuery(urljoin(config.passportUrl, req.path), {
-//                     errMsg: req.query.errMsg ? req.query.errMsg : '',
-//                     redirectUrl: config.siteDomain,
-//                 }));
-//                 return;
-//             }
-//         }
-//
-//         return next();
-//     };
-// }
-
-// pbupassport({
-//     passportUrl: '',
-//     siteDomain: '',
-//     maxAge: '',
-//     ssoApiUrl: ''
-// })
