@@ -161,6 +161,7 @@ function pbupassport(config) {
                 res.clearCookie(item);
             });
             res.redirect(appendQuery(urljoin(config.passportUrl, req.path), {
+                prodTag: config.prodTag,
                 errMsg: req.query.errMsg ? req.query.errMsg : '',
                 redirectUrl: config.siteDomain,
             }));
